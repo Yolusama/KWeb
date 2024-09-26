@@ -1,0 +1,249 @@
+{
+  "version": 3,
+  "targets": {
+    "net6.0": {
+      "HttpMultipartParser/8.4.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.IO.RecyclableMemoryStream": "3.0.0",
+          "System.Buffers": "4.5.1"
+        },
+        "compile": {
+          "lib/net6.0/HttpMultipartParser.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/HttpMultipartParser.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Microsoft.IO.RecyclableMemoryStream/3.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/Microsoft.IO.RecyclableMemoryStream.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/Microsoft.IO.RecyclableMemoryStream.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "System.Buffers/4.5.1": {
+        "type": "package",
+        "compile": {
+          "ref/netcoreapp2.0/_._": {}
+        },
+        "runtime": {
+          "lib/netcoreapp2.0/_._": {}
+        }
+      },
+      "DependencyInjection/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "compile": {
+          "bin/placeholder/DependencyInjection.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/DependencyInjection.dll": {}
+        }
+      },
+      "KJson/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "compile": {
+          "bin/placeholder/KJson.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/KJson.dll": {}
+        }
+      },
+      "KLogger/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "compile": {
+          "bin/placeholder/KLogger.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/KLogger.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "HttpMultipartParser/8.4.0": {
+      "sha512": "vqjwG9OoObxs0+rBYoviMtuF3GyYL3uP/rx06VL1LslWidyBymlqrfb2ZlYrZRMDdNH1wB7hKmq1eJsHKvZF+w==",
+      "type": "package",
+      "path": "httpmultipartparser/8.4.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "httpmultipartparser.8.4.0.nupkg.sha512",
+        "httpmultipartparser.nuspec",
+        "lib/net48/HttpMultipartParser.dll",
+        "lib/net48/HttpMultipartParser.xml",
+        "lib/net6.0/HttpMultipartParser.dll",
+        "lib/net6.0/HttpMultipartParser.xml",
+        "lib/net7.0/HttpMultipartParser.dll",
+        "lib/net7.0/HttpMultipartParser.xml",
+        "lib/netstandard2.1/HttpMultipartParser.dll",
+        "lib/netstandard2.1/HttpMultipartParser.xml"
+      ]
+    },
+    "Microsoft.IO.RecyclableMemoryStream/3.0.0": {
+      "sha512": "irv0HuqoH8Ig5i2fO+8dmDNdFdsrO+DoQcedwIlb810qpZHBNQHZLW7C/AHBQDgLLpw2T96vmMAy/aE4Yj55Sg==",
+      "type": "package",
+      "path": "microsoft.io.recyclablememorystream/3.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net6.0/Microsoft.IO.RecyclableMemoryStream.dll",
+        "lib/net6.0/Microsoft.IO.RecyclableMemoryStream.xml",
+        "lib/netstandard2.0/Microsoft.IO.RecyclableMemoryStream.dll",
+        "lib/netstandard2.0/Microsoft.IO.RecyclableMemoryStream.xml",
+        "lib/netstandard2.1/Microsoft.IO.RecyclableMemoryStream.dll",
+        "lib/netstandard2.1/Microsoft.IO.RecyclableMemoryStream.xml",
+        "microsoft.io.recyclablememorystream.3.0.0.nupkg.sha512",
+        "microsoft.io.recyclablememorystream.nuspec"
+      ]
+    },
+    "System.Buffers/4.5.1": {
+      "sha512": "Rw7ijyl1qqRS0YQD/WycNst8hUUMgrMH4FCn1nNm27M4VxchZ1js3fVjQaANHO5f3sN4isvP4a+Met9Y4YomAg==",
+      "type": "package",
+      "path": "system.buffers/4.5.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/net461/System.Buffers.dll",
+        "lib/net461/System.Buffers.xml",
+        "lib/netcoreapp2.0/_._",
+        "lib/netstandard1.1/System.Buffers.dll",
+        "lib/netstandard1.1/System.Buffers.xml",
+        "lib/netstandard2.0/System.Buffers.dll",
+        "lib/netstandard2.0/System.Buffers.xml",
+        "lib/uap10.0.16299/_._",
+        "ref/net45/System.Buffers.dll",
+        "ref/net45/System.Buffers.xml",
+        "ref/netcoreapp2.0/_._",
+        "ref/netstandard1.1/System.Buffers.dll",
+        "ref/netstandard1.1/System.Buffers.xml",
+        "ref/netstandard2.0/System.Buffers.dll",
+        "ref/netstandard2.0/System.Buffers.xml",
+        "ref/uap10.0.16299/_._",
+        "system.buffers.4.5.1.nupkg.sha512",
+        "system.buffers.nuspec",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
+    },
+    "DependencyInjection/1.0.0": {
+      "type": "project",
+      "path": "../DependencyInjection/DependencyInjection.csproj",
+      "msbuildProject": "../DependencyInjection/DependencyInjection.csproj"
+    },
+    "KJson/1.0.0": {
+      "type": "project",
+      "path": "../KJson/KJson.csproj",
+      "msbuildProject": "../KJson/KJson.csproj"
+    },
+    "KLogger/1.0.0": {
+      "type": "project",
+      "path": "../KLogger/KLogger.csproj",
+      "msbuildProject": "../KLogger/KLogger.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net6.0": [
+      "DependencyInjection >= 1.0.0",
+      "HttpMultipartParser >= 8.4.0",
+      "KJson >= 1.0.0",
+      "KLogger >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "D:\\caching\\.nuget\\packages": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "D:\\repos\\C#WebServer\\KWeb\\KWeb.csproj",
+      "projectName": "KWeb",
+      "projectPath": "D:\\repos\\C#WebServer\\KWeb\\KWeb.csproj",
+      "packagesPath": "D:\\caching\\.nuget\\packages",
+      "outputPath": "D:\\repos\\C#WebServer\\KWeb\\obj\\",
+      "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
+      "configFilePaths": [
+        "C:\\Users\\25043\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net6.0"
+      ],
+      "sources": {
+        "D:\\caching\\.nuget\\package-reference": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "projectReferences": {
+            "D:\\repos\\C#WebServer\\DependencyInjection\\DependencyInjection.csproj": {
+              "projectPath": "D:\\repos\\C#WebServer\\DependencyInjection\\DependencyInjection.csproj"
+            },
+            "D:\\repos\\C#WebServer\\KJson\\KJson.csproj": {
+              "projectPath": "D:\\repos\\C#WebServer\\KJson\\KJson.csproj"
+            },
+            "D:\\repos\\C#WebServer\\KLogger\\KLogger.csproj": {
+              "projectPath": "D:\\repos\\C#WebServer\\KLogger\\KLogger.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "net6.0": {
+        "targetAlias": "net6.0",
+        "dependencies": {
+          "HttpMultipartParser": {
+            "target": "Package",
+            "version": "[8.4.0, )"
+          }
+        },
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}
