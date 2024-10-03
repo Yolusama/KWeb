@@ -69,18 +69,12 @@ namespace KWeb.HttpOption.RequestHandle
             allowedHeaders = headers;
             return this;
         }
-        public void Verify(HttpResponse response)
+        public void Verify(HttpRequest request,HttpResponse response)
         {
             StringBuilder builder = new StringBuilder();
-            foreach(string origin in allowedOrigins)
-            {
-                builder.Append(origin + ", ");
-            }
-            if(builder.Length >= 2)
-               builder.Remove(builder.Length - 2, 2);
-            if (allowedOrigins.Length > 0)
-                response.Headers.Add("Access-Control-Allow-Origin",builder.ToString());
-            builder.Clear();
+            string origin = request.Headers["Origin"];
+            if(allowedOrigins.SingleOrDefault(o=>o==origin)!=null || allowedOrigins[0] == "*")
+                response.Headers.Add("Access-Control-Allow-Origin",origin);
             foreach(string header in allowedHeaders)
             {
                 builder.Append(header + ", ");
@@ -137,7 +131,7 @@ namespace KWeb.HttpOption.RequestHandle
         {
             CorsVerifiers = new Dictionary<string, CorsVerifier>();
         }
-        public CorsVerifier AddCorVerifer(string name)
+        public CorsVerifier AddCorVerifier(string name)
         {
             CorsVerifiers[name] = new CorsVerifier();
             return CorsVerifiers[name];
@@ -151,7 +145,7 @@ namespace KWeb.HttpOption.RequestHandle
         {
             register = new CorsVerifierRegister();
         }
-        public CorsVerifier AddCorVerifer(string name)
+        public CorsVerifier AddCorVerifier(string name)
         {
             register.CorsVerifiers[name] = new CorsVerifier();
             return register.CorsVerifiers[name];

@@ -12,5 +12,6 @@ global using Interceptor;
 global using Test;
 global using DependencyInjection;
 global using Koober.MySql;
+global using KRedisCaching;
 global using HttpMethod = KWeb.HttpOption.HttpMethod;
 

@@ -17,16 +17,25 @@ namespace KWeb
         public Socket Server { get; set; }
         public string Name {  get; set; }
         public int Port { get; set; }
+        private static WebApplication? instance = null;
         public KJson Configuration { get; init; }
         const int QueueSize = 1024;
         const int MB = 1024 * 1024;
         private CorsVerifier? usedCorsVerifer = null;
+        private bool isRunning = false;
         public ServiceProvider Services { get; } = new ServiceProvider();
         private CorsVerifierRegister corsVerifierRegister;
-        private RequestInterceptorRegister interceptorManager;
+        private RequestInterceptorRegister? interceptorManager = null;
         private RequestInterceptor? workedInterceptor = null;
         private ResourceHandler? resourceHandler = null;
         private IKLogger logger;
+        public WebApplication()
+        {
+            if (instance == null)
+                instance = this;
+            else
+                throw new Exception("只允许创造一个WebApplication对象");
+        }
         public void AddCors(Action<CorsVerifierRegisterBuilder> registerFunc)
         {
             CorsVerifierRegisterBuilder builder = new CorsVerifierRegisterBuilder();
@@ -56,17 +65,20 @@ namespace KWeb
 
         public void Run()
         {
+            if(isRunning) return;
+            isRunning = true;
             logger = (IKLogger)ServiceProvider.Get(typeof(IKLogger));
             Server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             Server.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), Port));
-            logger.Info($"应用已启动，访问地址：http://{Server.LocalEndPoint}");
+            logger.Fatal($"应用名称：{Name}，应用将启动...");
+            logger.Info($"应用已启动，访问地址：http://{Server.LocalEndPoint}或者http://localhost:{Port}");
             Server.Listen(QueueSize);
             ThreadPool.SetMaxThreads(12, 12);
             Services.Register();
             HttpRouteHandler.RegisterPaths();
-            int bufferSize = Configuration.Get("RequestSize") == null ?
-                                  30 * MB + 1: Configuration.Get<int>("RequestSize");
-            while (true)
+            int bufferSize = Configuration.Get("Request:MaxSize") == null ?
+                                  100 * MB + 1: Configuration.Get<int>("Request:MaxSize");
+            while (isRunning)
             {
                 try
                 { 
@@ -99,8 +111,8 @@ namespace KWeb
                             HttpRouteHandler.ModifyPath(path, request);
                             HttpStatusCode statusCode = HttpRouteHandler.PathExists(path);
                             response.StatusCode = statusCode;
-                            if (usedCorsVerifer != null)
-                                usedCorsVerifer.Verify(response);
+                            if (usedCorsVerifer != null && request.Headers.ContainsKey("Origin"))
+                                usedCorsVerifer.Verify(request,response);
                             if (statusCode == HttpStatusCode.OK &&
                             HttpRouteHandler.VerifyRequest(request, response, path)
                             &&(resourceHandler==null||!resourceHandler.RouteMatched(path.Route)))
@@ -143,15 +155,22 @@ namespace KWeb
                         catch(Exception ex) 
                         {
                             logger.Error(ex.Message + ":" + ex.StackTrace);
+                            client.Shutdown(SocketShutdown.Both);
+                            client.Close();
                         }
                     });
                 }
-                catch { }
+                catch 
+                {
+                    continue;
+                }
                 Thread.Sleep(10);
             }
         }
         private bool InterceptorHandle(HttpPath path,HttpRequest request,HttpResponse response)
         {
+           if (interceptorManager == null)
+                return true;
            foreach(var interceptor in interceptorManager.Interceptors.OrderByDescending(i=>i.Order))
                {
                     bool matchRes = false;

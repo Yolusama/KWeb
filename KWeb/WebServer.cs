@@ -6,9 +6,13 @@ namespace KWeb
 {
     public class WebServer
     {
-      
+        private static WebApplication? instance = null;
         public WebApplication CreateApplication()
         {
+            if(instance!=null)
+            {
+                throw new Exception("只允许创造一个WebApplication对象");
+            }
             WebApplication app = new WebApplication
             {
                 Configuration = new KJson("application.json")
@@ -35,7 +39,8 @@ namespace KWeb
                 else
                     return new Logger(app.Configuration.Get<string>(key));
             });
-     
+
+            instance = app;
             return app;
         }
     }

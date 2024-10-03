@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace KWeb.HttpOption
 {
@@ -20,6 +21,7 @@ namespace KWeb.HttpOption
             Headers = new Dictionary<string, string>
             {
                 { "Content-Type", "text/html;charset=utf-8" },
+                { "Cache-Control" , "no-cache, no-store" }
             };
             Version = "HTTP/1.1";
         }

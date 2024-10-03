@@ -34,14 +34,21 @@ namespace KWeb.HttpOption
             return ServiceProvider.Get(ControllerType);
         }
 
-        public object? InvokeControlMethod(HttpRequest request,HttpResponse response)
+        public  object? InvokeControlMethod(HttpRequest request,HttpResponse response)
         {
             object? controller = GetContoller();
             ParameterInfo[] paramNames = ControlMethod.GetParameters();
             ControllerType.GetProperty("Request").SetValue(controller, request);
             ControllerType.GetProperty("Response").SetValue(controller,response);
-            if(Query.Count==0&&PathVarible.Count==0&&RequestBodyType==null)
-                return ControlMethod.Invoke(controller,parameters: null);
+            Type returnType = ControlMethod.ReturnType;
+            if (Query.Count == 0 && PathVarible.Count == 0 && RequestBodyType == null)
+            {
+                if (returnType.IsGenericType&&returnType.GetGenericTypeDefinition().Equals(typeof(Task<>)))
+                {
+                    return GetAsyncResult(ControlMethod.Invoke(controller, parameters: null));
+                }
+                return ControlMethod.Invoke(controller, parameters: null);
+            }
             List<object> values = new List<object>();
             foreach(ParameterInfo param in paramNames)
             {
@@ -60,6 +67,10 @@ namespace KWeb.HttpOption
                     }
                 }
             }
+            if(returnType.IsGenericType && returnType.GetGenericTypeDefinition().Equals(typeof(Task<>)))
+            {
+                return GetAsyncResult(ControlMethod.Invoke(controller, parameters: null));
+            }
             return ControlMethod.Invoke(controller, values.ToArray());
         }
 
@@ -76,6 +87,11 @@ namespace KWeb.HttpOption
             return paramValue;
         }
 
+        private object? GetAsyncResult(object result)
+        {
+            PropertyInfo res = result.GetType().GetProperty("Result");
+            return res.GetValue(result);
+        }
         public override bool Equals(object? obj)
         {
             return Route.Equals(((HttpPath)obj).Route);

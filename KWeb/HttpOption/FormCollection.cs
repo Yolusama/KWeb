@@ -10,16 +10,10 @@ using System.Threading.Tasks;
 
 namespace KWeb.HttpOption
 {
-    public class FormFile : IDisposable
+    public class FormFile
     {
         public string FileName { get; init; }
         public Stream File { get; init; }
-        public string CachingPath { get; init; }
-
-        public void Dispose()
-        {
-            System.IO.File.Delete(CachingPath);
-        }
     }
 
     public class FormCollection
@@ -57,30 +51,39 @@ namespace KWeb.HttpOption
     public class FormCollectionBuilder
     {
         public string Sign {  get; set; }
+        public static string CachingPath { get; set; } = Directory.GetCurrentDirectory();
         public FormCollectionBuilder(string sign) 
         {
             Sign = sign;
         }
 
-        public FormCollection Build(byte[] formBytes)
+        public FormCollection Build(byte[] formBytes,int length)
         {
             Dictionary<string,string> items = new Dictionary<string, string>();
             Dictionary<string, FormFile> files = new Dictionary<string, FormFile>();
-            string cachingPath = $"D:\\repos\\Caching\\CSWeb\\{Guid.NewGuid()}";
+            string randomName = Guid.NewGuid().ToString();
+            string cachingPath = $"{CachingPath}\\{randomName}";
             Stream stream = new FileStream(cachingPath,FileMode.OpenOrCreate,FileAccess.ReadWrite);
-            stream.Write(formBytes);
+            stream.Write(formBytes,0,length);
             stream.Position = 0;
             var parser = MultipartFormDataParser.Parse(stream,Sign);
             foreach (var paramter in parser.Parameters)
                 items.Add(paramter.Name, paramter.Data);
             foreach (var file in parser.Files)
             {
-                string cachingPath1 = $"D:\\repos\\Caching\\CSWeb\\{file.Name}_temp";
-                files.Add(file.Name, new FormFile { FileName = file.FileName, File = file.Data, CachingPath = cachingPath1 });
+                files.Add(file.Name, new FormFile { FileName = file.FileName, File = file.Data });
             }
             stream.Dispose();
             File.Delete(cachingPath);
             return new FormCollection(items,files);
+        }
+    }
+
+    public static class FormBuilderExpansion
+    {
+        public static void AddFormCachingPath(this WebApplication app,Func<string> builder)
+        {
+            FormCollectionBuilder.CachingPath = builder();
         }
 
     }

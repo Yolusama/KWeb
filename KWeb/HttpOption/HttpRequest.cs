@@ -113,8 +113,8 @@ namespace KWeb.HttpOption
             if(formBuilder != null)
             {
                 int index = requestStr.IndexOf(formBuilder.Sign);
-                if(index>0)
-                Form = formBuilder.Build(requestBytes);
+                if (index > 0)
+                     Form = formBuilder.Build(requestBytes, length);
             }
             reader.Dispose();
         }

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
 
 namespace KJSON
 {
@@ -15,17 +16,13 @@ namespace KJSON
             document.Dispose();
         }
 
-        public string? Parse(string key)
-        {
-            return document.RootElement.GetProperty(key).GetString();
-        }
         public object? Parse(string key,Type type)
         {
             return document.RootElement.GetProperty(key).Deserialize(type);
         }
         public object? Parse(Type type)
         {
-            var pros = type.GetProperties();
+            var pros = type.GetProperties(BindingFlags.Instance|BindingFlags.Public);
             object? obj= Activator.CreateInstance(type);
             foreach (var pro in pros)
             {
@@ -37,7 +34,7 @@ namespace KJSON
         public T? Parse<T>()
         {
             Type type = typeof(T);
-            var pros=type.GetProperties();
+            var pros=type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
             T? obj=(T?)Activator.CreateInstance(type);
             foreach (var pro in pros)
             {

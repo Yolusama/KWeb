@@ -4,7 +4,7 @@ namespace DependencyInjection
 {
     public class ServiceProvider
     {
-        public static ServiceProvider GlobalServices { get; set; } = null;
+        public static ServiceProvider GlobalServices { get; private set; } = null;
         private readonly Dictionary<string, Func<object>> scopedObjs;
         private readonly Dictionary<string, object> singleObjs;
         public ServiceProvider() 

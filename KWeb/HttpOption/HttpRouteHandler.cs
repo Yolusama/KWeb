@@ -136,8 +136,13 @@ namespace KWeb.HttpOption
                         return HttpStatusCode.BadRequest;
                 }
             }
-            if(path.RequestBodyType!=null)
-                aimPath.RequestBodyType = path.RequestBodyType;
+            if (path.RequestBodyType != null)
+            {
+                Http1Request requestType = path.ControlMethod.GetCustomAttribute<Http1Request>();
+                if(requestType.Method != HttpMethod.Get || requestType.Method != HttpMethod.Delete)
+                   aimPath.RequestBodyType = path.RequestBodyType;
+                else return HttpStatusCode.MethodNotAllowed;
+            }
             return HttpStatusCode.OK;
         }
 
@@ -177,7 +182,10 @@ namespace KWeb.HttpOption
         public static bool VerifyRequest(HttpRequest request,HttpResponse response,HttpPath path)
         {
             if (request.Method == HttpMethod.Options)
+            {
+                response.StatusCode = HttpStatusCode.OK;
                 return false;
+            }
             if(request.Method != path.ControlMethod.GetCustomAttribute<Http1Request>().Method)
             {
                 response.StatusCode = HttpStatusCode.NotAcceptable;

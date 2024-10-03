@@ -1,12 +1,15 @@
 ﻿// See https://aka.ms/new-console-template for more information
+
+using KWeb.HttpOption;
+
 WebServer server = new WebServer();
 var app = server.CreateApplication();
 
 app.AddCors(builder =>
 {
-    builder.AddCorVerifer("default").
+    builder.AddCorVerifier("default").
     AllowAnyHeaders().AllowAnyOrigins().AllowAnyMethods();
-    builder.AddCorVerifer("OnlyGetPost").AllowAnyOrigins().
+    builder.AddCorVerifier("OnlyGetPost").AllowAnyOrigins().
     AllowHeaders().AllowMethods("get", "post");
 });
 
@@ -16,7 +19,7 @@ app.AddInterceptors(builder =>
                                 .ExcludePatterns("/Test/Test1");
 });
 
-app.AddDbConnection(builder =>
+app.AddMySqlConnection(builder =>
 {
      builder.Server = app.Configuration.Get<string>("MySql:Server");
      builder.Port = app.Configuration.Get<uint>("MySql:Port");
@@ -25,6 +28,13 @@ app.AddDbConnection(builder =>
      builder.Password = app.Configuration.Get<string>("MySql:Password");
      builder.MaximumPoolSize = app.Configuration.Get<uint>("MySql:MaxConnection");
 });
+
+app.AddRedisConnetion(builder =>
+{
+    builder.SetHost("localhost").SetPort(6379);
+});
+
+app.AddFormCachingPath(() => app.Configuration.Get<string>("Request:Form:CachingPath"));
 
 
 app.AddResourceHandler(builder =>

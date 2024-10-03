@@ -30,15 +30,9 @@ namespace KLogger
                 Console.WriteLine(toWriteMsg);
             if(FolderPath != null)
             {
-                string path = Path.Combine(FolderPath, $"{DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss")}.log");
-                if(File.Exists(path))
-                {
-                    File.AppendAllText(path, toWriteMsg + '\n');
-                }
-                else
-                {
-                    File.Create(path);
-                }
+                string path = Path.Combine(FolderPath, $"{DateTime.Now.ToString("yyyy-MM-dd")}.log");
+                using FileStream stream = new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.Write);
+                stream.Write(Encoding.UTF8.GetBytes(toWriteMsg+'\n'));
             }
             Console.ResetColor();
         }

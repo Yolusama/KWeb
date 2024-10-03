@@ -82,7 +82,7 @@ namespace Koober.MySql
                 int index = command.IndexOf('@');
                 if (index > 0)
                 {
-                    string[] paramters = command.Split(',', ' ', '=');
+                    string[] paramters = command.Split(',', ' ', '=').Where(s=>s.Contains('@')).ToArray();
                     for(int i = 0; i < paramters.Length; i++)
                     {
                         AddParamter(cmd, paramters[i], values[i]);
@@ -91,7 +91,6 @@ namespace Koober.MySql
                 logger.Trace(SqlLogText(cmd));
                 using(DbDataReader reader = cmd.ExecuteReader())
                 {
-                    T obj = (T)Activator.CreateInstance(type);
                     if(reader.Depth > 1)
                     {
                         MultiContentException exception = new MultiContentException();
@@ -99,10 +98,12 @@ namespace Koober.MySql
                         throw exception;
                     }
                     while (reader.Read())
-                    {
+                    {   
+                        T obj = (T)Activator.CreateInstance(type);
                         ReadSingle(type.GetProperties(BindingFlags.Instance | BindingFlags.Public), reader, obj);
+                        res.Add(obj);
                     }
-                    res.Add(obj);
+                    
                 }
             }
             connection.Close();
@@ -167,7 +168,7 @@ namespace Koober.MySql
                 int index = command.IndexOf('@');
                 if (index > 0)
                 {
-                    string[] paramters = command.Split(',', ' ', '=');
+                    string[] paramters = command.Split(',', ' ', '=').Where(s => s.Contains('@')).ToArray();
                     for (int i = 0; i < paramters.Length; i++)
                     {
                         AddParamter(cmd, paramters[i], values[i]);
@@ -176,7 +177,6 @@ namespace Koober.MySql
                 logger.Trace(SqlLogText(cmd));
                 using (DbDataReader reader = cmd.ExecuteReader())
                 {
-                    T obj = (T)Activator.CreateInstance(type);
                     if (reader.Depth > 1)
                     {
                         MultiContentException exception = new MultiContentException();
@@ -184,10 +184,12 @@ namespace Koober.MySql
                         throw exception;
                     }
                     while (reader.Read())
-                    {
+                    { 
+                        T obj = (T)Activator.CreateInstance(type);
                         ReadSingle(type.GetProperties(BindingFlags.Instance | BindingFlags.Public), reader, obj);
+                        page.Data.Add(obj);
                     }
-                    page.Data.Add(obj);
+                   
                 }
                 Table? attribute = type.GetCustomAttribute<Table>();
                 string tableName = attribute == null ? type.Name : attribute.Name;
@@ -210,7 +212,7 @@ namespace Koober.MySql
 
     public static class DbExpansion
     {
-        public static void AddDbConnection(this WebApplication app,Action<MySqlConnectionStringBuilder> builder)
+        public static void AddMySqlConnection(this WebApplication app,Action<MySqlConnectionStringBuilder> builder)
         {
             MySqlConnectionStringBuilder strBuilder = new MySqlConnectionStringBuilder();
             builder(strBuilder);
