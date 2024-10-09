@@ -21,7 +21,7 @@ namespace KWeb.HttpOption
             Headers = new Dictionary<string, string>
             {
                 { "Content-Type", "text/html;charset=utf-8" },
-                { "Cache-Control" , "no-cache, no-store" }
+                { "Cache-Control","no-store,no-cache" }
             };
             Version = "HTTP/1.1";
         }

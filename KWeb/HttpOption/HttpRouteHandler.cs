@@ -23,11 +23,10 @@ namespace KWeb.HttpOption
             foreach (var type in types)
             {
                 string? urlHead = type.GetCustomAttribute<Route>()?.Value;
-                IEnumerable<FieldInfo> injectionFileds = type.GetFields(BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public)
-                    .Where(f=>f.GetCustomAttribute<ServiceInjection>()!=null);
                 ConstructorInfo? contruct = type.GetConstructors().SingleOrDefault(e=>e.GetCustomAttribute<
                     ServiceInjection>()!=null);
                 object[]? values = null;
+                object? controller = null;
                 if(contruct!=null)
                 {
                     ParameterInfo[] constructParams = contruct.GetParameters();
@@ -39,7 +38,19 @@ namespace KWeb.HttpOption
                             values[i] = ServiceProvider.Get(constructParams[i].ParameterType, attribute.Name);
                         else
                             values[i] = ServiceProvider.Get(constructParams[i].ParameterType);
+                        controller = contruct.Invoke(values);
                     }
+                }
+                else
+                {
+                    controller = Activator.CreateInstance(type);
+                    /*IEnumerable<FieldInfo> injectionFileds = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+                    .Where(f => f.GetCustomAttribute<ServiceInjection>() != null);
+                    foreach(FieldInfo field in injectionFileds)
+                    {
+                        ServiceInjection attribute = field.GetCustomAttribute<ServiceInjection>();
+                        field.SetValue(controller, ServiceProvider.Get(field.FieldType,attribute.Name));
+                    }*/
                 }
                 MethodInfo[] methods = type.GetMethods();
                 foreach(MethodInfo method in methods)
@@ -102,8 +113,7 @@ namespace KWeb.HttpOption
                     path.ControlMethod = method;
                     paths.Add(path);   
                 }
-                ServiceProvider.GlobalServices.AddService(type,()=>contruct==null?
-                Activator.CreateInstance(type):contruct.Invoke(values));
+                ServiceProvider.GlobalServices.AddService(type, () => controller);
             }
         }
 

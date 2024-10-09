@@ -88,7 +88,7 @@ namespace Koober
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex.ToString() + ":" + ex.StackTrace);
+                    logger.Error(ex.Message + ":" + ex.StackTrace);
                     transaction.Rollback();
                 }
 
@@ -219,11 +219,19 @@ namespace Koober
 
         public abstract T? SingleQuery(string command, params object[] values);
         public abstract List<T> Query(string command, params object[] values);
+        public abstract List<TR> Select<TR>(string command, params object[] values);
+        public abstract List<TR> Select<TR>(string command,Func<T,TR> result,params object[] values);
+        public abstract TR? SelectOne<TR>(string command, params object[] values);
+        public abstract TR? SelectOne<TR>(string command,Func<T,TR> result, params object[] values);
+        
         public abstract int NonQuery(string command, params object[] values);
         public abstract List<T> Query(PagedQuery<T> page,string command, params object[] values);
 
         public abstract T? SingleQuery<Q>(string command,Q query);
         public abstract List<T> Query<Q>(string command,Q query);
+        public abstract TR? SelectOne<TR,Q>(string command, Q query);
+        public abstract List<TR> Select<TR, Q>(string command, Func<T, TR> result,Q query);
+        public abstract TR? SelectOne<TR,Q>(string command, Func<T, TR> result,Q query);
         public abstract int NonQuery<Q>(string command,Q query);
         public abstract List<T> Query<Q>(PagedQuery<T> page, string command, Q query);
 

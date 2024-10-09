@@ -57,24 +57,25 @@ namespace KWeb.HttpOption
             Sign = sign;
         }
 
-        public FormCollection Build(byte[] formBytes,int length)
+        public FormCollection Build(byte[] formBytes)
         {
             Dictionary<string,string> items = new Dictionary<string, string>();
             Dictionary<string, FormFile> files = new Dictionary<string, FormFile>();
             string randomName = Guid.NewGuid().ToString();
             string cachingPath = $"{CachingPath}\\{randomName}";
             Stream stream = new FileStream(cachingPath,FileMode.OpenOrCreate,FileAccess.ReadWrite);
-            stream.Write(formBytes,0,length);
+            stream.Write(formBytes);
             stream.Position = 0;
-            var parser = MultipartFormDataParser.Parse(stream,Sign);
+            var parser = MultipartFormDataParser.Parse(stream, Sign);
             foreach (var paramter in parser.Parameters)
-                items.Add(paramter.Name, paramter.Data);
+            items.Add(paramter.Name, paramter.Data);
             foreach (var file in parser.Files)
             {
-                files.Add(file.Name, new FormFile { FileName = file.FileName, File = file.Data });
+               files.Add(file.Name, new FormFile { FileName = file.FileName, File = file.Data });
             }
             stream.Dispose();
             File.Delete(cachingPath);
+     
             return new FormCollection(items,files);
         }
     }

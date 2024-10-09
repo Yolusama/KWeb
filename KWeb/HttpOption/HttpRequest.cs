@@ -54,18 +54,18 @@ namespace KWeb.HttpOption
             return HttpMethod.Request;
         }
 
-        public HttpRequest(byte[] requestBytes,int length)
+        public HttpRequest(byte[] requestBytes)
         {
             Body = null;
             Query = new Dictionary<string, object>();
             PathVarible = new Dictionary<string, object>();
             Headers = new Dictionary<string, string>();
-            Init(requestBytes,length);
+            Init(requestBytes);
         }
 
-        private void Init(byte[] requestBytes,int length)
+        private void Init(byte[] requestBytes)
         {
-            string requestStr = Encoding.UTF8.GetString(requestBytes,0,length); 
+            string requestStr = Encoding.UTF8.GetString(requestBytes); 
             StringReader reader = new StringReader(requestStr);
             FormCollectionBuilder? formBuilder = null;
             string? line;
@@ -114,7 +114,7 @@ namespace KWeb.HttpOption
             {
                 int index = requestStr.IndexOf(formBuilder.Sign);
                 if (index > 0)
-                     Form = formBuilder.Build(requestBytes, length);
+                     Form = formBuilder.Build(requestBytes);
             }
             reader.Dispose();
         }
@@ -142,5 +142,15 @@ namespace KWeb.HttpOption
             }
 
         }
+    }
+
+    public class BuffsizeOverLargeException : Exception
+    {
+        public BuffsizeOverLargeException() : base("处理请求的缓冲区大小不超过最大大小的十分之一!") { }
+    }
+
+    public class RequestSizeOverflowException : Exception
+    {
+        public RequestSizeOverflowException() : base("请求体大小超过最大承载量！") {}
     }
 }

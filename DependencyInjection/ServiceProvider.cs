@@ -96,6 +96,8 @@ namespace DependencyInjection
         public void AddService<I, T>(string name="") where T : class where I : class
         {
             Type interfaceType = typeof(I);
+            if (!interfaceType.IsInterface && !interfaceType.IsAbstract)
+                throw new NotAbstractException();
             Type type = typeof(T);
             if (interfaceType.IsAssignableFrom(type))
                 scopedObjs[name== "" ? interfaceType.Name:name] = () => Activator.CreateInstance(type);
@@ -106,6 +108,8 @@ namespace DependencyInjection
         public void AddService<I, T>(Func<T> func,string name = "") where T : class where I : class
         {
             Type interfaceType = typeof(I);
+            if (!interfaceType.IsInterface && !interfaceType.IsAbstract)
+                throw new NotAbstractException();
             Type type = typeof(T);
             if (interfaceType.IsAssignableFrom(type))
             {
@@ -160,6 +164,8 @@ namespace DependencyInjection
         public void AddSingle<I, T>(string name="") where T : class where I : class
         {
             Type interfaceType = typeof(I);
+            if (!interfaceType.IsInterface && !interfaceType.IsAbstract)
+                throw new NotAbstractException();
             Type type = typeof(T);
             if (interfaceType.IsAssignableFrom(type))
             {
@@ -172,6 +178,8 @@ namespace DependencyInjection
         public void AddSingle<I, T>(Func<T> instanceFunc, string name = "") where T : class where I : class
         {
             Type interfaceType = typeof(I);
+            if (!interfaceType.IsInterface && !interfaceType.IsAbstract)
+                throw new NotAbstractException();
             Type type = typeof(T);
             if (interfaceType.IsAssignableFrom(type))
             {

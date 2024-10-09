@@ -31,4 +31,9 @@ namespace DependencyInjection
     {
         public NotImplementionException() : base("注入的实际类型不是注入接口/抽象类类型的实现类") { }
     }
+
+    public class NotAbstractException : Exception
+    {
+        public NotAbstractException() : base("注入的前置类型必须是接口或者抽象类") { }
+    }
 }

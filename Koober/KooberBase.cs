@@ -40,7 +40,7 @@ namespace Koober
             return new string[] { idStrBuider.ToString(), tableName };
         }
 
-        protected void ReadSingle(PropertyInfo[] properties,DbDataReader reader,T target)
+        protected void ReadSingle<TI>(PropertyInfo[] properties,DbDataReader reader,TI target)
         {
             foreach (PropertyInfo property in properties)
             {

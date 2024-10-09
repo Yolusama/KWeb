@@ -115,6 +115,31 @@ namespace Koober.MySql
             return Query(command,ObjectToArray(query));
         }
 
+        public override List<TR> Select<TR>(string command, params object[] values)
+        {
+            return Select<TR>(command, null, values);
+        }
+
+        public override List<TR> Select<TR>(string command, Func<T, TR> result, params object[] values)
+        {   
+            List<T> res = Query(command, values);
+            if(result == null)
+            {
+                List<TR> trRes = new List<TR>();
+                foreach(T item in res)
+                {
+                  trRes.Add(ObjectUtil.CopyProperties(item,
+                        (TR)Activator.CreateInstance(typeof(TR)),BindingFlags.Public | BindingFlags.Instance));
+                }
+                return trRes;
+            }
+            return res.Select(result).ToList();
+        }
+        public override List<TR> Select<TR, Q>(string command, Func<T, TR> result, Q query)
+        {
+            return Select(command, result, ObjectToArray(query));
+        }
+
         public override T? SingleQuery(string command, params object[] values)
         {
             Type type = typeof(T);
@@ -157,7 +182,28 @@ namespace Koober.MySql
         {
             return SingleQuery(command,ObjectToArray(query));
         }
-
+        public override TR? SelectOne<TR>(string command, params object[] values) where TR : default
+        {
+            return SelectOne<TR>(command, null, values);
+        }
+        public override TR? SelectOne<TR>(string command, Func<T, TR> result, params object[] values) where TR : default
+        {
+            T res = SingleQuery(command, values);
+            if(result == null)
+            {
+                return ObjectUtil.CopyProperties(res,
+                    (TR)Activator.CreateInstance(typeof(TR)),BindingFlags.Public| BindingFlags.Instance);
+            }
+            return result(res);
+        }
+        public override TR? SelectOne<TR, Q>(string command, Q query) where TR : default
+        {
+            return SelectOne<TR>(command,null,ObjectToArray(query));
+        }
+        public override TR? SelectOne<TR, Q>(string command, Func<T, TR> result, Q query) where TR : default
+        {
+            return SelectOne(command,result, ObjectToArray(query));
+        }
         public override List<T> Query(PagedQuery<T> page, string command, params object[] values)
         {
             Type type = typeof(T);

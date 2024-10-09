@@ -4,6 +4,7 @@ using KLogger;
 using KWeb.HttpOption;
 using KWeb.HttpOption.RequestHandle;
 using System.Data.Common;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -76,86 +77,66 @@ namespace KWeb
             ThreadPool.SetMaxThreads(12, 12);
             Services.Register();
             HttpRouteHandler.RegisterPaths();
-            int bufferSize = Configuration.Get("Request:MaxSize") == null ?
-                                  100 * MB + 1: Configuration.Get<int>("Request:MaxSize");
+            int maxSize = Configuration.Get("Request:MaxSize") == null ?
+                                  10 * MB : Configuration.Get<int>("Request:MaxSize");
+            int bufferSize = Configuration.Get("Request:BuuferSize") == null ?
+                                  maxSize/5 : Configuration.Get<int>("Request:BufferSize");
             while (isRunning)
             {
                 try
                 { 
                     Socket client = Server.Accept();
-                    if (client==null||!client.Connected||client.Available<0)
+                    if (client == null || client.Available < 0)
                     {
+                        client?.Dispose();
                         continue;
                     }
                     ThreadPool.QueueUserWorkItem(arg =>
                     {
+                        HttpResponse response = new HttpResponse();
+                        List<byte> data = new List<byte>();
+                        NetworkStream stream = new NetworkStream(client);
                         try
                         {
                             byte[] buffer = new byte[bufferSize];
-                            int recvBytes = client.Receive(buffer);
-                            string res;
-                            if (recvBytes > 0)
-                                res = Encoding.UTF8.GetString(buffer, 0, recvBytes);
-                            else res = "";
-                            //Console.WriteLine(res.Trim());
-                            if (res==""||res.Contains("/favicon.ico"))
+                            stream.ReadTimeout = 100 * (int)(maxSize / bufferSize);
+                            int recvBytes;
+                            while((recvBytes = stream.Read(buffer))>0)
                             {
-                                /* response.StatusCode = HttpStatusCode.BadGateway;
-                                 response.Result = "未知";*/
-                                return;
+                                for(int i = 0; i < recvBytes; i++)
+                                    data.Add(buffer[i]);
                             }
-                            HttpRequest request = new HttpRequest(buffer,recvBytes);
-                            HttpResponse response = new HttpResponse();
-                            HttpPath path = new HttpPath(request.NoQueryUrl());
-                            path.Query = request.Query.Keys.ToList();
-                            HttpRouteHandler.ModifyPath(path, request);
-                            HttpStatusCode statusCode = HttpRouteHandler.PathExists(path);
-                            response.StatusCode = statusCode;
-                            if (usedCorsVerifer != null && request.Headers.ContainsKey("Origin"))
-                                usedCorsVerifer.Verify(request,response);
-                            if (statusCode == HttpStatusCode.OK &&
-                            HttpRouteHandler.VerifyRequest(request, response, path)
-                            &&(resourceHandler==null||!resourceHandler.RouteMatched(path.Route)))
-                            {
-                                if (InterceptorHandle(path, request, response))
-                                    response.Result = path.InvokeControlMethod(request, response);
-                                else
-                                {
-                                    response.StatusCode = HttpStatusCode.Unauthorized;
-                                    response.Result = $"{(int)response.StatusCode} {response.StatusCode}";
-                                }
-                            }
-                           else if(resourceHandler!=null && resourceHandler.RouteMatched(path.Route))
-                            {
-                                byte[] fileBytes = resourceHandler.Locate(path.Route, response);
-                                if (fileBytes!=null) 
-                                    response.Result= fileBytes;
-                                else
-                                {
-                                    response.StatusCode = HttpStatusCode.NotFound;
-                                    response.Result = $"{(int)response.StatusCode} {response.StatusCode}";
-                                }
-                            }
-                            else
-                            {
-                                response.Result = $"{(int)response.StatusCode} {response.StatusCode}";
-                            }
-                            workedInterceptor?.AfterHandling(request, response);
-                            if (response.Result.GetType() == typeof(byte[]))
-                            {
-                                using NetworkStream stream = new NetworkStream(client);
-                                stream.Write(Encoding.UTF8.GetBytes(response.ResponseHeaders()));
-                                stream.Write((byte[])response.Result);
-                            }
-                            else 
-                                client.Send(Encoding.UTF8.GetBytes(response.Response()));
-                            client.Shutdown(SocketShutdown.Both);
-                            client.Close();                     
+                           // GetResponse(stream,response,data.ToArray());                
                         }
-                        catch(Exception ex) 
+                        catch(IOException)
+                        {
+                            client.Shutdown(SocketShutdown.Receive); 
+                            if(data.Count>maxSize)
+                            {
+                                throw new RequestSizeOverflowException();
+                            }
+                            try
+                            {
+                                GetResponse(stream, response, data.ToArray());
+                            }
+                            catch (Exception ex)
+                            {
+                                logger.Error(ex.Message + ":" + ex.StackTrace);
+                                response.StatusCode = HttpStatusCode.InternalServerError;
+                                response.Result = $"{(int)response.StatusCode} {response.StatusCode}";
+                                client.Send(Encoding.UTF8.GetBytes(response.Response()));
+                            }
+                        }
+                        catch (Exception ex)
                         {
                             logger.Error(ex.Message + ":" + ex.StackTrace);
-                            client.Shutdown(SocketShutdown.Both);
+                            response.StatusCode = HttpStatusCode.InternalServerError;
+                            response.Result = $"{(int)response.StatusCode} {response.StatusCode}";
+                            stream.Write(Encoding.UTF8.GetBytes(response.Response()));
+                        }
+                        finally
+                        {
+                            stream.Dispose();
                             client.Close();
                         }
                     });
@@ -164,7 +145,6 @@ namespace KWeb
                 {
                     continue;
                 }
-                Thread.Sleep(10);
             }
         }
         private bool InterceptorHandle(HttpPath path,HttpRequest request,HttpResponse response)
@@ -197,6 +177,63 @@ namespace KWeb
             return true;
         }
 
+        private void GetResponse(NetworkStream stream,HttpResponse response, byte[] data)
+        {
+            string res;
+            if (data.Length > 0)
+                res = Encoding.UTF8.GetString(data);
+            else res = "";
+            // Console.WriteLine(res.Trim());
+            if (res == "" || res.Contains("/favicon.ico"))
+            {
+                response.StatusCode = HttpStatusCode.BadGateway;
+                response.Result = "未知";
+                return;
+            }
+            HttpRequest request = new HttpRequest(data);
+            HttpPath path = new HttpPath(request.NoQueryUrl());
+            path.Query = request.Query.Keys.ToList();
+            HttpRouteHandler.ModifyPath(path, request);
+            HttpStatusCode statusCode = HttpRouteHandler.PathExists(path);
+            response.StatusCode = statusCode;
+            if (usedCorsVerifer != null && request.Headers.ContainsKey("Origin"))
+                usedCorsVerifer.Verify(request, response);
+            if (statusCode == HttpStatusCode.OK &&
+            HttpRouteHandler.VerifyRequest(request, response, path)
+            && (resourceHandler == null || !resourceHandler.RouteMatched(path.Route)))
+            {
+                if (InterceptorHandle(path, request, response))
+                    response.Result = path.InvokeControlMethod(request, response);
+                else
+                {
+                    response.StatusCode = HttpStatusCode.Unauthorized;
+                    response.Result = $"{(int)response.StatusCode} {response.StatusCode}";
+                }
+            }
+            else if (resourceHandler != null && resourceHandler.RouteMatched(path.Route))
+            {
+                byte[] fileBytes = resourceHandler.Locate(path.Route, response);
+                if (fileBytes != null)
+                    response.Result = fileBytes;
+                else
+                {
+                    response.StatusCode = HttpStatusCode.NotFound;
+                    response.Result = $"{(int)response.StatusCode} {response.StatusCode}";
+                }
+            }
+            else
+            {
+                response.Result = $"{(int)response.StatusCode} {response.StatusCode}";
+            }
+            workedInterceptor?.AfterHandling(request, response);
+            if (response.Result.GetType() == typeof(byte[]))
+            {
+                stream.Write(Encoding.UTF8.GetBytes(response.ResponseHeaders()));
+                stream.Write((byte[])response.Result);
+            }
+            else
+                stream.Write(Encoding.UTF8.GetBytes(response.Response()));
+        }
         public void Dispose()
         {
             Server.Dispose();
