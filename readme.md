@@ -1,0 +1,1 @@
+以C#线程池，反射为基础的，具有处理基本http请求功能的小web框架，以Koober封装ado.net，简化数据库操作的小“orm”，C#WebServcer下为测试用例。

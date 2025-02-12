@@ -1,0 +1,47 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DependencyInjection
+{
+    public enum InjectionType
+    {
+        None, Single = 1,Scoped = 2
+    }
+    [AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Class)]
+    public class ServiceInjection : Attribute
+    {
+        public string Name { get; set; }
+        public InjectionType Type { get; set; }
+        public ServiceInjection(string name = "", InjectionType type = InjectionType.Scoped)
+        {
+            Name = name;
+            Type = type;
+        }
+    }
+    [AttributeUsage(AttributeTargets.Field)]
+    public class ConfigInjection : ServiceInjection
+    { 
+        public ConfigInjection(string name="",InjectionType type = InjectionType.Single):base(name, type)
+        {
+           
+        }
+    }
+
+    public class ServiceExistedException : Exception
+    {
+        public ServiceExistedException() : base("该服务已被注册了！") { }
+    }
+
+    public class NotImplementionException : Exception
+    {
+        public NotImplementionException() : base("注入的实际类型不是注入接口/抽象类类型的实现类") { }
+    }
+
+    public class NotAbstractException : Exception
+    {
+        public NotAbstractException() : base("注入的前置类型必须是接口或者抽象类") { }
+    }
+}

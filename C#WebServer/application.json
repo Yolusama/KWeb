@@ -1,0 +1,32 @@
+{
+  "MySql": {
+    "Server": "localhost",
+    "Port": 3306,
+    "UserId": "root",
+    "Password": "",
+    "MaxConnection": 12,
+    "Database" :  "c"
+  },
+  "Resource" : {
+        "Patterns" : ["/img","/video"],
+        "Locations" : ["C:Users\\25043\\Desktop\\简历","C:Users\\25043\\Desktop\\js程序文件","D:\\repos\\VideoServerResource"]
+  },
+  "Request":{
+    "Form" : {
+      "CachingPath" : "D:\\repos\\Caching\\CSWeb"
+    }
+  },
+  "Logger": {
+    "Path": "Log"
+  },
+  "Example": {
+    "exam1": {
+      "a": 1,
+      "b": "dasdasda"
+    },
+    "exam2": {
+      "c": [ "dasda", "Fasfa", "Fasf" ],
+      "d": "dasfgasgf"
+    }
+  }
+}
